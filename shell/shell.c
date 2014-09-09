@@ -3,7 +3,7 @@
 #include<stdlib.h>
 #include<errno.h>
 #include<dirent.h>
-
+#include<unistd.h>
 /* Boolean constants */
 #define TRUE 1
 #define FALSE 0
@@ -11,6 +11,10 @@
 extern int errno;
 /* Declaring functions*/
 int scan_directory(char *dir, char *target);
+int chdir(const char *path);
+pid_t wait(int *status);
+pid_t fork(void);
+int execv(const char *path, char *const argv[]);
 /* Path variable to be used to maintain path of the executables required to run the commands*/
 char *path = "";
 
@@ -116,7 +120,7 @@ char* handle_commands(char *cmd) {
 	}else{
 		return NULL;
 	}
-
+	
 }
 
 int scan_directory(char *dir, char *target) {
@@ -184,7 +188,7 @@ int main() {
 					if (strcmp(cmd[1], "-") == 0) {
 						printf("Path subtraction\n");
 						if (strcmp(path, "") != 0) {
-							printf("in subtract %s\n");
+							printf("in subtract \n");
 							path_token = strtok(path, ":");
 
 							while (path_token) {
