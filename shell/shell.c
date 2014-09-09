@@ -12,9 +12,10 @@ extern int errno;
 /* Declaring functions*/
 int scan_directory(char *dir, char *target);
 int chdir(const char *path);
-pid_t wait(int *status);
+//pid_t wait(int *status);
 pid_t fork(void);
 int execv(const char *path, char *const argv[]);
+
 /* Path variable to be used to maintain path of the executables required to run the commands*/
 char *path = "";
 
