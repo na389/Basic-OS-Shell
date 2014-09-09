@@ -1,25 +1,11 @@
 #include<stdio.h>
 #include<string.h>
 #include<stdlib.h>
-int main(){
+#include<errno.h>
 
-	char *str, *token, ;
-	while(1){
-		printf("$");
-		str = get_input();
-		if(str == NULL){
-			printf("No input received");
-			continue;
-		}
-		token = strtok(str, " ");
-		while(token != NULL){
-			
-		}
-		
-	}
-	printf("%s", str);
-}
+extern int errno;
 
+/* Getting input from the user*/
 char* get_input(){
 	int mem = 128;
 	char *temp_malloc = (char*) malloc(mem);
@@ -49,4 +35,43 @@ char* get_input(){
 	}
 	return str;
 }
+
+
+/*Handle commands*/
+void handleCommands(char* cmd[]){
+	
+}
+
+int main(){
+
+	char *str, *token, *cmd[100];
+	int i = 0;
+	while(1){
+		printf("$");
+		str = (char*)get_input();
+		printf("string : %s\n", str);
+		if(str == NULL){
+			printf("error : %s\n", strerror(errno));
+		}
+		token = strtok(str, " \t");
+		while(token != NULL){
+			cmd[i++] = token;
+			printf("%s\n", token);
+			token = strtok(NULL, " \t");
+		}
+		printf("token 1: %s\n", cmd[0]);
+		if(strcmp(cmd[0], "exit") == 0){
+			break;	
+		}
+		if(strcmp(cmd[0], "cd") == 0){
+			printf("==>");
+			if(chdir(cmd[1]) < 0){
+				printf("error : %s\n", strerror(errno));
+			}
+		}		
+		free(str);
+		str = NULL;	
+	}
+}
+
 
