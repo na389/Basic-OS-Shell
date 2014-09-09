@@ -44,7 +44,8 @@ void handleCommands(char* cmd[]){
 
 int main(){
 
-	char *str, *token, *cmd[100];
+	char *str, *token, *cmd[100], *path;
+	
 	int i = 0;
 	while(1){
 		printf("$");
@@ -69,6 +70,19 @@ int main(){
 				printf("error : %s\n", strerror(errno));
 			}
 		}		
+		if(strcmp(cmd[0], "path") == 0){
+			if(!cmd[1){
+				path = getenv("PATH");
+				printf("path: %s", path);
+			}else if((strcmp(cmd[1], "+") == 0) || (strcmp(cmd[1],"-"))){
+				if(!cmd[2]){ 
+					printf("error: Missing arguments");
+					continue;
+				}
+				
+			}
+		}		
+
 		free(str);
 		str = NULL;	
 	}
