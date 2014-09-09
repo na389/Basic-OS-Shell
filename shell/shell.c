@@ -155,7 +155,7 @@ int main() {
 	while (1) {
 		i = 0;
 		char *b = "";
-		printf("$ ");
+		printf("$");
 		str = (char*) get_input();
 		if (str == NULL) {
 			printf("error : %s\n", strerror(errno));
@@ -167,7 +167,7 @@ int main() {
 		}
 		if (strcmp(cmd[0], "exit") == 0) {
 			printf("EXITING shell\n");
-			break;
+			exit(0);
 		} else if (strcmp(cmd[0], "cd") == 0) {
 			printf("==>");
 			if (chdir(cmd[1]) < 0) {
@@ -223,6 +223,9 @@ int main() {
 					if (pid < 0) {
 						break;
 					}
+					if(cmd_path == NULL){
+						printf("error : Command not found\n");
+					}					
 					if (pid > 0) {
 						int child_status;
 						wait(&child_status);
@@ -244,5 +247,6 @@ int main() {
 
 		
 	}
+	return(0);
 }
 
