@@ -12,7 +12,7 @@ extern int errno;
 /* Declaring functions*/
 int scan_directory(char *dir, char *target);
 int chdir(const char *path);
-//pid_t wait(int *status);
+pid_t wait(int *status);
 pid_t fork(void);
 int execv(const char *path, char *const argv[]);
 
@@ -21,7 +21,7 @@ char *path = "";
 
 /*Function to concatenate two strings*/
 char* concat(char *s1, char *s2) {
-	printf("s1 %s : s2 %s\n", s1, s2);
+	printf("s1 -%s : s2 -%s\n", s1, s2);
 	if (s1 == NULL || s2 == NULL || (strcmp(s2, "") == 0)) {
 		printf("Invalid Strings");
 		return s1;
@@ -148,12 +148,13 @@ int scan_directory(char *dir, char *target) {
 
 int main() {
 
-	char *str, *token, *cmd[100], *b, *cmd_path="", *path_token;
+	char *str, *token, *cmd[100], *cmd_path="", *path_token;
 	pid_t pid;
 
 	int i = 0;
 	while (1) {
 		i = 0;
+		char *b = "";
 		printf("$ ");
 		str = (char*) get_input();
 		if (str == NULL) {
@@ -192,24 +193,24 @@ int main() {
 							printf("in subtract \n");
 							path_token = strtok(path, ":");
 
+						printf("token1: %s\n", path_token);
 							while (path_token) {
-
 								if (strcmp(path_token, cmd[2]) != 0) {
-									if (strlen(path) > 0) {
-											b = concat(b, ":");
+									if (strlen(b) > 0) {
+										b = concat(b, ":");
 									}
+						printf("token2: %s\n", path_token);
 									b = concat(b, path_token);
 								}
 								path_token = strtok(NULL, ":");
-								printf("token-----------> %s\n", path_token);
 							}
+							printf("b---------> %s\n", b);
 							if(strcmp(path, "") != 0){
 								free(path);
 								path = NULL;
 							}
 //							printf("length b: %d", strlen(b));
 							path = b;
-							break;
 						}
 					}
 
@@ -223,7 +224,8 @@ int main() {
 						break;
 					}
 					if (pid > 0) {
-						wait(pid);
+						int child_status;
+						wait(&child_status);
 					}
 					if (pid == 0 && cmd_path != NULL) {
 						cmd_path = concat(cmd_path, "/");
@@ -235,11 +237,12 @@ int main() {
 						exit(0);
 					}
 				}
-			}
+		}
 
 			free(str);
-			str = NULL;
+			str = NULL;		
 
-		}
+		
 	}
+}
 
