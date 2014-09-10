@@ -160,12 +160,13 @@ void handle_path(int cmd_length, char *input[]){
 }
 
 /*Executes commands using fork, wait and execv*/
-void execute_commands(pid_t pid, char *input, char *cmd_path, int len){
+void execute_commands(pid_t pid, char *input[], char *cmd_path, int len){
 	if (pid < 0) {
-		break;
+		return;
 	}
 	if(cmd_path == NULL){
 		printf("error : Command not found\n");
+		return;
 	}
 	if (pid > 0) {
 		int child_status;
@@ -183,7 +184,7 @@ void execute_commands(pid_t pid, char *input, char *cmd_path, int len){
 
 int main() {
 
-	char *str, *token, *cmd[100], *cmd_path="", *path_token;
+	char *str, *token, *cmd[100], *cmd_path="";
 	pid_t pid;
 
 	int i = 0;
