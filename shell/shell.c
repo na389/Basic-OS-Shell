@@ -177,6 +177,8 @@ void handle_path(int cmd_length, char *input[])
 			path = NULL;
 		}
 		path = b;
+	} else {
+		printf("error: invalid arguments path +/- expected\n");
 	}
 
 }
