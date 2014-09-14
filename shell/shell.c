@@ -9,6 +9,7 @@
 #define FALSE 0
 
 extern int errno;
+
 /* Declaring functions*/
 int scan_directory(char *dir, char *target);
 int chdir(const char *path);
@@ -21,7 +22,6 @@ char *path = "";
 
 /*Function to concatenate two strings*/
 char* concat(char *s1, char *s2) {
-	printf("s1 -%s : s2 -%s\n", s1, s2);
 	if (s1 == NULL || s2 == NULL || (strcmp(s2, "") == 0)) {
 		printf("Invalid Strings");
 		return s1;
@@ -81,7 +81,7 @@ char* get_input() {
 	return str;
 }
 
-/*Find path for executable in the path variable*/
+/*Returns location of the executable for the given command*/
 char* handle_commands(char *cmd) {
 	if (path == NULL || strcmp(path, "") == 0) {
 		return NULL;
@@ -124,6 +124,7 @@ char* handle_commands(char *cmd) {
 	
 }
 
+/* Locate if given target if present in the given directory and return TRUE or FALSE */
 int scan_directory(char *dir, char *target) {
 	int flag = FALSE;
 	if (dir == NULL || strcmp(dir, "") == 0 || target == NULL || strcmp(target, "") == 0) {
@@ -154,7 +155,6 @@ int main() {
 	int i = 0;
 	while (1) {
 		i = 0;
-		char *b = "";
 		printf("$");
 		str = (char*) get_input();
 		if (str == NULL) {
@@ -175,77 +175,65 @@ int main() {
 			}
 		} else if (i >= 1 && strcmp(cmd[0], "path") == 0) {
 			if (i == 1) {
-				printf("path: %s\n", path);
-			} else if ((strcmp(cmd[1], "+") == 0)
-					|| (strcmp(cmd[1], "-") == 0)) {
-				if (i >= 3) {
-					//	printf("error: Missing arguments");
-					if (strcmp(cmd[1], "+") == 0) {
-						printf("path argument: %s\n", cmd[2]);
-						if (strlen(path) > 0) {
-							path = concat(path, ":");
-						}
-						path = concat(path, cmd[2]);
+				printf("%s\n", path);
+			} else if (((strcmp(cmd[1], "+") == 0) || (strcmp(cmd[1], "-") == 0)) && (i >= 3)) {
+				if (strcmp(cmd[1], "+") == 0) {
+					printf("path argument: %s\n", cmd[2]);
+					if (strlen(path) > 0) {
+						path = concat(path, ":");
 					}
-					if (strcmp(cmd[1], "-") == 0) {
-						printf("Path subtraction\n");
-						if (strcmp(path, "") != 0) {
-							printf("in subtract \n");
-							path_token = strtok(path, ":");
-
-						printf("token1: %s\n", path_token);
-							while (path_token) {
-								if (strcmp(path_token, cmd[2]) != 0) {
-									if (strlen(b) > 0) {
-										b = concat(b, ":");
-									}
-						printf("token2: %s\n", path_token);
-									b = concat(b, path_token);
-								}
-								path_token = strtok(NULL, ":");
-							}
-							printf("b---------> %s\n", b);
-							if(strcmp(path, "") != 0){
-								free(path);
-								path = NULL;
-							}
-//							printf("length b: %d", strlen(b));
-							path = b;
-						}
-					}
-
+					path = concat(path, cmd[2]);
 				}
+				if (strcmp(cmd[1], "-") == 0) {
+					char *b = "";
+					if (strcmp(path, "") != 0) {
+						path_token = strtok(path, ":");
+						while (path_token) {
+							if (strcmp(path_token, cmd[2]) != 0) {
+								if (strlen(b) > 0) {
+									b = concat(b, ":");
+								}
+								b = concat(b, path_token);
+							}
+							path_token = strtok(NULL, ":");
+						}
+						if(strcmp(path, "") != 0){
+							free(path);
+							path = NULL;
+						}
+						path = b;
+					}
+				}
+
+
 			}
 		}else {
-				if (i >= 1) {
-					cmd_path = handle_commands(cmd[0]);
-					pid = fork();
-					if (pid < 0) {
-						break;
-					}
-					if(cmd_path == NULL){
-						printf("error : Command not found\n");
-					}					
-					if (pid > 0) {
-						int child_status;
-						wait(&child_status);
-					}
-					if (pid == 0 && cmd_path != NULL) {
-						cmd_path = concat(cmd_path, "/");
-						cmd_path = concat(cmd_path, cmd[0]);
-						cmd[i] = NULL;
-						printf("cmd_path: %s\n", cmd_path);
-						execv(cmd_path, cmd);
-						printf("error : %s\n", strerror(errno));
-						exit(0);
-					}
+			if (i >= 1) {
+				cmd_path = handle_commands(cmd[0]);
+				pid = fork();
+				if (pid < 0) {
+					break;
 				}
+				if(cmd_path == NULL){
+					printf("error : Command not found\n");
+				}
+				if (pid > 0) {
+					int child_status;
+					wait(&child_status);
+				}
+				if (pid == 0 && cmd_path != NULL) {
+					cmd_path = concat(cmd_path, "/");
+					cmd_path = concat(cmd_path, cmd[0]);
+					cmd[i] = NULL;
+					printf("cmd_path: %s\n", cmd_path);
+					execv(cmd_path, cmd);
+					printf("error : %s\n", strerror(errno));
+					exit(0);
+				}
+			}
 		}
-
-			free(str);
-			str = NULL;		
-
-		
+		free(str);
+		str = NULL;
 	}
 	return(0);
 }
