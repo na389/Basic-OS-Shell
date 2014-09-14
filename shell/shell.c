@@ -25,7 +25,6 @@ char *path = "";
 char *concat(char *s1, char *s2)
 {
 	if (s1 == NULL || s2 == NULL || (strcmp(s2, "") == 0)) {
-		printf("Invalid Strings");
 		return s1;
 	}
 	char *temp_malloc = (char *) malloc(strlen(s1)
@@ -186,11 +185,10 @@ void handle_path(int cmd_length, char *input[])
 /*Executes commands using fork, wait and execv*/
 void execute_commands(pid_t pid, char *input[], char *cmd_path, int len)
 {
-	if (pid < 0)
-		return;
-	if (cmd_path == NULL) {
+	if (pid > 0 && (cmd_path == NULL|| strcmp(cmd_path, "")== 0)) {
 		printf("error: command not found\n");
-		return;
+		exit(1);
+		//return;
 	}
 	if (pid > 0) {
 		int child_status;
@@ -198,14 +196,13 @@ void execute_commands(pid_t pid, char *input[], char *cmd_path, int len)
 		wait(&child_status);
 	}
 	if (pid == 0) {
-		if (strcmp(cmd_path, "") != 0) {
-			cmd_path = concat(cmd_path, "/");
-			cmd_path = concat(cmd_path, input[0]);
-			input[len] = NULL;
-			execv(cmd_path, input);
-			printf("error: %s\n", strerror(errno));
-			exit(0);
-		}
+		
+		cmd_path = concat(cmd_path, "/");
+		cmd_path = concat(cmd_path, input[0]);
+		input[len] = NULL;
+		execv(cmd_path, input);
+		printf("error: %s\n", strerror(errno));
+		exit(0);		
 	}
 }
 
