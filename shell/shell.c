@@ -187,7 +187,7 @@ void execute_commands(pid_t pid, char *input[], char *cmd_path, int len)
 	if (pid < 0)
 		return;
 	if (cmd_path == NULL) {
-		printf("error : Command not found\n");
+		printf("error: command not found\n");
 		return;
 	}
 	if (pid > 0) {
@@ -195,12 +195,18 @@ void execute_commands(pid_t pid, char *input[], char *cmd_path, int len)
 
 		wait(&child_status);
 	}
-	if (pid == 0 && cmd_path != NULL) {
-		cmd_path = concat(cmd_path, "/");
-		cmd_path = concat(cmd_path, input[0]);
+	if (pid == 0) {
+		if (strcmp(cmd_path, "") != 0) {
+			cmd_path = concat(cmd_path, "/");
+			cmd_path = concat(cmd_path, input[0]);
+			input[len] = NULL;
+			execv(cmd_path, input);
+			printf("error: %s\n", strerror(errno));
+			exit(0);
+		}
 		input[len] = NULL;
 		execv(cmd_path, input);
-		printf("error : %s\n", strerror(errno));
+		printf("error: %s\n", strerror(errno));
 		exit(0);
 	}
 }
@@ -225,7 +231,7 @@ int main(void)
 			cmd[i++] = token;
 			token = strtok(NULL, " \t");
 		}
-		if (i <= 0) {
+		if (i == 0) {
 			continue;
 		} else if (strcmp(cmd[0], "exit") == 0) {
 			printf("EXITING shell\n");
@@ -238,9 +244,14 @@ int main(void)
 		} else if (i >= 1 && strcmp(cmd[0], "path") == 0) {
 			handle_path(i, cmd);
 		} else {
-			cmd_path = handle_commands(cmd[0]);
 			pid = fork();
-			execute_commands(pid, cmd, cmd_path, i);
+			execute_commands(pid, cmd, "", i);
+			int not_exec = TRUE;
+
+			if (not_exec == TRUE) {
+				cmd_path = handle_commands(cmd[0]);
+				execute_commands(pid, cmd, cmd_path, i);
+			}
 		}
 		free(str);
 		str = NULL;
