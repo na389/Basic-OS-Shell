@@ -147,6 +147,41 @@ int scan_directory(char *dir, char *target) {
 	return flag;
 }
 
+
+/* Handling path command*/
+void handle_path(int cmd_length, char *input[]){
+	char *path_token="";
+	if (cmd_length == 1) {
+		printf("%s\n", path);
+	} else if (cmd_length >= 3) {
+		if (strcmp(input[1], "+") == 0) {
+			printf("path argument: %s\n", input[2]);
+			if (strlen(path) > 0) {
+				path = concat(path, ":");
+			}
+			path = concat(path, input[2]);
+		}
+		if (strcmp(input[1], "-") == 0 && strcmp(path, "") != 0) {
+			char *b = "";
+			path_token = strtok(path, ":");
+			while (path_token) {
+				if (strcmp(path_token, input[2]) != 0) {
+					if (strlen(b) > 0) {
+						b = concat(b, ":");
+					}
+					b = concat(b, path_token);
+				}
+				path_token = strtok(NULL, ":");
+			}
+			if(strcmp(path, "") != 0){
+				free(path);
+				path = NULL;
+			}
+			path = b;
+		}
+	}
+}
+
 int main() {
 
 	char *str, *token, *cmd[100], *cmd_path="", *path_token;
@@ -174,39 +209,7 @@ int main() {
 				printf("error : %s\n", strerror(errno));
 			}
 		} else if (i >= 1 && strcmp(cmd[0], "path") == 0) {
-			if (i == 1) {
-				printf("%s\n", path);
-			} else if (((strcmp(cmd[1], "+") == 0) || (strcmp(cmd[1], "-") == 0)) && (i >= 3)) {
-				if (strcmp(cmd[1], "+") == 0) {
-					printf("path argument: %s\n", cmd[2]);
-					if (strlen(path) > 0) {
-						path = concat(path, ":");
-					}
-					path = concat(path, cmd[2]);
-				}
-				if (strcmp(cmd[1], "-") == 0) {
-					char *b = "";
-					if (strcmp(path, "") != 0) {
-						path_token = strtok(path, ":");
-						while (path_token) {
-							if (strcmp(path_token, cmd[2]) != 0) {
-								if (strlen(b) > 0) {
-									b = concat(b, ":");
-								}
-								b = concat(b, path_token);
-							}
-							path_token = strtok(NULL, ":");
-						}
-						if(strcmp(path, "") != 0){
-							free(path);
-							path = NULL;
-						}
-						path = b;
-					}
-				}
-
-
-			}
+			handle_path(i, cmd);
 		}else {
 			if (i >= 1) {
 				cmd_path = handle_commands(cmd[0]);
