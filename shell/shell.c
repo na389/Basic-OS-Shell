@@ -204,10 +204,6 @@ void execute_commands(pid_t pid, char *input[], char *cmd_path, int len)
 			printf("error: %s\n", strerror(errno));
 			exit(0);
 		}
-		input[len] = NULL;
-		execv(cmd_path, input);
-		printf("error: %s\n", strerror(errno));
-		exit(0);
 	}
 }
 
@@ -245,10 +241,10 @@ int main(void)
 			handle_path(i, cmd);
 		} else {
 			pid = fork();
-			execute_commands(pid, cmd, "", i);
-			int not_exec = TRUE;
+			cmd[i] = NULL;
+			int return_val = execv(cmd[0], cmd);
 
-			if (not_exec == TRUE) {
+			if (return_val == -1) {
 				cmd_path = handle_commands(cmd[0]);
 				execute_commands(pid, cmd, cmd_path, i);
 			}
