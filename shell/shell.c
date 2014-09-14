@@ -221,7 +221,7 @@ int main(void)
 		printf("$");
 		str = (char *) get_input();
 		if (str == NULL)
-			printf("error : %s\n", strerror(errno));
+			printf("error: %s\n", strerror(errno));
 		token = strtok(str, " \t");
 		while (token != NULL) {
 			cmd[i++] = token;
@@ -230,20 +230,27 @@ int main(void)
 		if (i == 0) {
 			continue;
 		} else if (strcmp(cmd[0], "exit") == 0) {
-			printf("EXITING shell\n");
 			free(str);
 			str = NULL;
 			exit(0);
 		} else if (strcmp(cmd[0], "cd") == 0) {
 			if (chdir(cmd[1]) < 0)
-				printf("error : %s\n", strerror(errno));
+				printf("error: %s\n", strerror(errno));
 		} else if (i >= 1 && strcmp(cmd[0], "path") == 0) {
 			handle_path(i, cmd);
 		} else {
+			int return_val = 0;
 			pid = fork();
 			cmd[i] = NULL;
-			int return_val = execv(cmd[0], cmd);
-
+			if(pid < 0)
+				continue;
+			if (pid > 0) {
+				int child_status;
+				wait(&child_status);
+			} 
+			if(pid == 0){
+				return_val = execv(cmd[0], cmd);
+			}
 			if (return_val == -1) {
 				cmd_path = handle_commands(cmd[0]);
 				execute_commands(pid, cmd, cmd_path, i);
