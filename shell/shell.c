@@ -58,7 +58,6 @@ char *get_input(void)
 	char *str, next, *temp_realloc;
 
 	if (temp_malloc == NULL) {
-		printf("Memory Overflow");
 		return NULL;
 	}
 	str = temp_malloc;
@@ -206,6 +205,92 @@ void execute_commands(pid_t pid, char *input[], char *cmd_path, int len)
 	}
 }
 
+int spawn_proc (int in, int out,  char *cmd[])
+{
+  pid_t pid;
+
+  if ((pid = fork ()) == 0)
+    {
+      if (in != 0)
+        {
+          dup2 (in, 0);
+          close (in);
+        }
+
+      if (out != 1)
+        {
+          dup2 (out, 1);
+          close (out);
+        }
+
+      return execvp (cmd[0], cmd);
+    }
+
+  return pid;
+}
+
+int fork_pipes(int n, char *cmnds)
+{
+	int i, k;
+	pid_t pid;
+	int in, fd[2];
+	char *token, *data[100];
+
+	in = 0;
+	for (i = 0; i < n-1; i++) {
+		k = 0;
+		pipe(fd);
+		token = strtok(cmnds[i], " \t");
+		while (token != NULL) {
+			data[k++] = token;
+			token = strtok(NULL, " \t");
+		}
+		spawn_proc(in, fd[1], data);
+		close (fd[1]);
+		in = fd[0];
+	}
+	k = 0;
+	token = strtok(cmnds[i], " \t");
+	while (token != NULL) {
+		data[k++] = token;
+		token = strtok(NULL, " \t");
+	}
+
+	if (in != 0)
+		dup2(in, 0);
+	return execvp(data[0], data);
+}
+
+
+/*Function to handle pipes*/
+void handle_pipes(char *input)
+{
+	int length = 0;
+	char *token, *data ;
+	char *temp_malloc = (char *) malloc(strlen(input) + 1);
+
+	if (temp_malloc == NULL)
+		return;
+	strcpy(data, input);
+	token = strtok(data, "|");
+	while (token != NULL) {
+		length ++;
+		token = strtok(NULL, "|");
+	}
+
+	strcpy(data, input);
+	char *cmds[length];
+
+	length = 0;
+	token = strtok(data, "|");
+	while (token != NULL) {
+		cmds[length++] = token;
+		token = strtok(NULL, "|");
+	}
+	fork_pipes(length, cmds);
+}
+
+
 int main(void)
 {
 
@@ -221,6 +306,10 @@ int main(void)
 		str = (char *) get_input();
 		if (str == NULL)
 			printf("error: %s\n", strerror(errno));
+		if (strstr(str, "|") != NULL){
+			handle_pipes(str);
+			continue;
+		}
 		token = strtok(str, " \t");
 		while (token != NULL) {
 			cmd[i++] = token;
