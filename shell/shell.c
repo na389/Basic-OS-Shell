@@ -209,13 +209,11 @@ int spawn_proc (int in, int out,  char *cmd[])
 {
   pid_t pid;
 
-  if ((pid = fork ()) == 0)
-    {
-      if (in != 0)
-        {
+  if ((pid = fork ()) == 0) {
+      if (in != 0) {
           dup2 (in, 0);
           close (in);
-        }
+       }
 
       if (out != 1)
         {
@@ -229,10 +227,10 @@ int spawn_proc (int in, int out,  char *cmd[])
   return pid;
 }
 
-int fork_pipes(int n, char *cmnds)
+int fork_pipes(int n, char *cmnds[])
 {
+	printf("inside fork pipes\n");
 	int i, k;
-	pid_t pid;
 	int in, fd[2];
 	char *token, *data[100];
 
@@ -244,6 +242,7 @@ int fork_pipes(int n, char *cmnds)
 		while (token != NULL) {
 			data[k++] = token;
 			token = strtok(NULL, " \t");
+			printf("data--> %s\n", data[k]);
 		}
 		spawn_proc(in, fd[1], data);
 		close (fd[1]);
@@ -265,12 +264,14 @@ int fork_pipes(int n, char *cmnds)
 /*Function to handle pipes*/
 void handle_pipes(char *input)
 {
+	printf("inside handle pipes\n");
 	int length = 0;
 	char *token, *data ;
 	char *temp_malloc = (char *) malloc(strlen(input) + 1);
 
 	if (temp_malloc == NULL)
 		return;
+	data = temp_malloc;
 	strcpy(data, input);
 	token = strtok(data, "|");
 	while (token != NULL) {
@@ -278,7 +279,6 @@ void handle_pipes(char *input)
 		token = strtok(NULL, "|");
 	}
 
-	strcpy(data, input);
 	char *cmds[length];
 
 	length = 0;
@@ -286,6 +286,7 @@ void handle_pipes(char *input)
 	while (token != NULL) {
 		cmds[length++] = token;
 		token = strtok(NULL, "|");
+		printf("cmnds-> %s\n", cmds[length]);
 	}
 	fork_pipes(length, cmds);
 }
@@ -307,6 +308,7 @@ int main(void)
 		if (str == NULL)
 			printf("error: %s\n", strerror(errno));
 		if (strstr(str, "|") != NULL){
+			printf("Handling pipes\n");'
 			handle_pipes(str);
 			continue;
 		}
