@@ -192,8 +192,7 @@ int fork_proc_exec(int in, int out,  char *cmd[], int len)
 			return WEXITSTATUS(status);
 	} else if (pid == 0) {
 		if (in != 0) {
-			//ret_err = dup2(in, 0);
-			dup2(in, 0);
+			ret_err = dup2(in, 0);
 			if (ret_err == -1) {
 				printf("error: %s\n", strerror(errno));
 				exit(24);
@@ -211,7 +210,7 @@ int fork_proc_exec(int in, int out,  char *cmd[], int len)
 				exit(24);
 			}
 			ret_err = close(out);
-			if (ret_err == -1){
+			if (ret_err == -1) {
 				printf("error: %s\n", strerror(errno));
 				exit(24);
 			}
@@ -261,6 +260,7 @@ void pipe_exec(int n, char *cmnds[])
 	if (ret_spawn == -1 || ret_spawn > 0) {
 		/*Restoring standard output to write the error*/
 		int ret = dup2(stdout_copy, STDOUT_FILENO);
+
 		if (ret == -1) {
 			printf("error: %s\n", strerror(errno));
 			return;
@@ -277,6 +277,7 @@ void pipe_exec(int n, char *cmnds[])
 	data[k] = NULL;
 	if (in != 0) {
 		int ret = dup2(in, 0);
+
 		if (ret == -1) {
 			printf("error: %s\n", strerror(errno));
 			return;
