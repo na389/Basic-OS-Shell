@@ -1,0 +1,104 @@
+Script started on Mon 15 Sep 2014 09:24:48 PM EDT
+]0;na389@neha-ubuntu: ~/workspace/w4118_Assign1/hmwk1/shellna389@neha-ubuntu:~/workspace/w4118_Assign1/hmwk1/shell$ ./w4118_sh 
+$/bin/ls  |
+error: invalid command
+$/bin/ls || /bin/wc
+error: invalid command
+$pth
+error: command not found
+$path + /bin
+$path + /usr/bin
+$ls ||		wc
+error: invalid command
+$ls | wc
+     11      11      99
+$cd    cs d n389
+$pwd
+/home/na389/workspace/w4118_Assign1/hmwk1/shell/n389
+$cd ..
+$pwd
+/home/na389/workspace/w4118_Assign1/hmwk1/shell
+$path+  
+error: command not found
+$path =		
+error: invalid arguments path +/- expected
+$path -			
+error: invalid arguments path +/- expected
+$path  
+/bin:/usr/bin
+$path + /m n3389   89
+$path
+/bin:/usr/bin:/n389
+$path - /bin
+$path
+/usr/bin:/n389
+$l cat shell.c | grep exec | grec p val
+error: command not found
+$path + /bin
+$cat shelll.c     c .c | grep exec |   f gew  rep va; l
+		return_val = execv(cmd[0], cmd);
+		return_val = execv(data[0], data);
+				return_val = execv(cmd[0], cmd);
+$cat shell.c | grep exec
+int execv(const char *path, char *const argv[]);
+ * executables required to run the commands*/
+/*Returns location of the executable for the given command*/
+		return_val = execv(cmd[0], cmd);
+			execv(cmd_path, cmd);
+		return_val = execv(data[0], data);
+			execv(cmd_path, data);
+				return_val = execv(cmd[0], cmd);
+				execv(cmd_path, cmd);
+$pwd
+/home/na389/workspace/w4118_Assign1/hmwk1/shell
+$cat she; ll.c | grep exec | grep val | grep re
+		return_val = execv(cmd[0], cmd);
+		return_val = execv(data[0], data);
+				return_val = execv(cmd[0], cmd);
+$		|	
+error: invalid command
+$		|  |		
+error: invalid command
+$|	|	|	|	
+error: invalid command
+$/bin/ls|
+error: invalid command
+$/bin/ls ||     
+1  checkpatch.pl  Makefile  n389  na2542_shell_results.txt  na389  README  shell  shell.c  shell.o  w4118_sh
+$ls -lrt
+total 232
+-rw-rw-r-- 1 na389 na389      0 Sep 14 00:14 README
+-rw-rw-r-- 1 na389 na389    236 Sep 14 00:14 Makefile
+-rwxrwxr-x 1 na389 na389  13878 Sep 14 00:57 shell
+-rwxrwxrwx 1 na389 na389 149083 Sep 14 16:45 checkpatch.pl
+-rw-rw-r-- 1 na389 na389   7293 Sep 15 01:33 1
+drwxrwxr-x 2 na389 na389   4096 Sep 15 20:51 na389
+drwxrwxr-x 2 na389 na389   4096 Sep 15 21:19 n389
+-rw-rw-r-- 1 na389 na389   9579 Sep 15 21:24 shell.c
+-rw-rw-r-- 1 na389 na389  13736 Sep 15 21:24 shell.o
+-rwxrwxr-x 1 na389 na389  18625 Sep 15 21:24 w4118_sh
+-rw-rw-r-- 1 na389 na389      0 Sep 15 21:24 na2542_shell_results.txt
+$df -lr
+df: invalid option -- 'r'
+Try 'df --help' for more information.
+$df -l
+Filesystem     1K-blocks      Used Available Use% Mounted on
+/dev/sda5      151058636  20422520 122939732  15% /
+none                   4         0         4   0% /sys/fs/cgroup
+udev             3935412         4   3935408   1% /dev
+tmpfs             789240      1304    787936   1% /run
+none                5120         0      5120   0% /run/lock
+none             3946188     64708   3881480   2% /run/shm
+none              102400        76    102324   1% /run/user
+/dev/sda2          98304     29235     69069  30% /boot/efi
+/dev/sda7      708945916 144065668 564880248  21% /media/na389/Data
+/dev/sda1         307196    244812     62384  80% /media/na389/Recovery
+/dev/sda4      103907324  35966836  67940488  35% /media/na389/AE2CF5712CF534C5
+$path    cat shell.c | grep exec | xyz
+error: command not found
+error: command not found
+$exit
+]0;na389@neha-ubuntu: ~/workspace/w4118_Assign1/hmwk1/shellna389@neha-ubuntu:~/workspace/w4118_Assign1/hmwk1/shell$ exit
+exit
+
+Script done on Mon 15 Sep 2014 09:38:02 PM EDT

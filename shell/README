@@ -1,0 +1,159 @@
+=========================================================================
+HOW TO RUN
+=========================================================================
+
+1. This shell can be compiled using following command:
+make
+2. An executable will be generated:
+w4118_sh
+
+=========================================================================
+HOW IT WORKS
+=========================================================================
+1. Each line starts with a prompt - > "$"
+
+2. User can enter any number of input lines depending upon the memory available in the system.
+
+3. Number of command line arguments to 100.
+
+4. Shelll handles following commands:
+-> cd
+-> path +/-
+-> <cmd1> | <cmd2> | <cmd3> |.....
+-> Basic shell commands like ls, mkdir, date, pwd
+-> Prints error using "errno" which is the global field set by the function if it fails.
+
+5. Shell contains following functions:
+**concat - Concatenate given strings together and if memory cannot be allocated then relevant error is printed using errno.
+get_input - Takes input from the user, allocating memory unless reaches newline character to ensure any number of lines can be entered unless memory is exhausted.
+
+**handle_commands - It takes the command to be executed and checks if it present in the path variable of the shell using  "scan_directory()". If it is present path of the command executable is returned. main() uses the path to execute the commands using fork, wait and execvp. Else corresponding error message is printed.
+
+**scan_directory - Scans through the given directory to find if it containes the target executable which is a file.
+handle_path - This handles all the path commands-
+	      path
+	      path +
+	      path -
+If an an invalid command is encountered proper error meesage is printed. Otherwise depending upon the command addition and subtraction is done to the path variable.
+
+**fork_proc_exec - This function takes the input and output file descriptors and the command to be executed. It forks the parent process which waits for the child and child executes the given command by scanning for it in the path variable and execv.
+
+**pipe_exec - This takes all the commands included in the pipe and uses fork_proc_exec to handle execution of commands. This then handles the last command in the pipe.
+It also handles error if one of the pipe commands fails it prints error and returns to main.
+
+**trim_string - Trims spaces from front and rear of the given string.
+
+**validate_string - Validates string before executing pipe. If the string is invalid it gives an error and the program then waits for next input.
+
+**handle_pipes - It processes the input and give it to pipe_exec to execute.
+
+**main - It directs work to different functions depending upon the input. Also, it handles functionality for cd and exit.
+
+
+=========================================================================
+TESTING
+=========================================================================
+Script started on Mon 15 Sep 2014 09:24:48 PM EDT
+]0;na389@neha-ubuntu: ~/workspace/w4118_Assign1/hmwk1/shellna389@neha-ubuntu:~/workspace/w4118_Assign1/hmwk1/shell$ ./w4118_sh 
+$/bin/ls  |
+error: invalid command
+$/bin/ls || /bin/wc
+error: invalid command
+$pth
+error: command not found
+$path + /bin
+$path + /usr/bin
+$ls ||		wc
+error: invalid command
+$ls | wc
+     11      11      99
+$cd    cs d n389
+$pwd
+/home/na389/workspace/w4118_Assign1/hmwk1/shell/n389
+$cd ..
+$pwd
+/home/na389/workspace/w4118_Assign1/hmwk1/shell
+$path+  
+error: command not found
+$path =		
+error: invalid arguments path +/- expected
+$path -			
+error: invalid arguments path +/- expected
+$path  
+/bin:/usr/bin
+$path + /m n3389   89
+$path
+/bin:/usr/bin:/n389
+$path - /bin
+$path
+/usr/bin:/n389
+$l cat shell.c | grep exec | grec p val
+error: command not found
+$path + /bin
+$cat shelll.c     c .c | grep exec |   f gew  rep va; l
+		return_val = execv(cmd[0], cmd);
+		return_val = execv(data[0], data);
+				return_val = execv(cmd[0], cmd);
+$cat shell.c | grep exec
+int execv(const char *path, char *const argv[]);
+ * executables required to run the commands*/
+/*Returns location of the executable for the given command*/
+		return_val = execv(cmd[0], cmd);
+			execv(cmd_path, cmd);
+		return_val = execv(data[0], data);
+			execv(cmd_path, data);
+				return_val = execv(cmd[0], cmd);
+				execv(cmd_path, cmd);
+$pwd
+/home/na389/workspace/w4118_Assign1/hmwk1/shell
+$cat she; ll.c | grep exec | grep val | grep re
+		return_val = execv(cmd[0], cmd);
+		return_val = execv(data[0], data);
+				return_val = execv(cmd[0], cmd);
+$		|	
+error: invalid command
+$		|  |		
+error: invalid command
+$|	|	|	|	
+error: invalid command
+$/bin/ls|
+error: invalid command
+$/bin/ls ||     
+1  checkpatch.pl  Makefile  n389  na2542_shell_results.txt  na389  README  shell  shell.c  shell.o  w4118_sh
+$ls -lrt
+total 232
+-rw-rw-r-- 1 na389 na389      0 Sep 14 00:14 README
+-rw-rw-r-- 1 na389 na389    236 Sep 14 00:14 Makefile
+-rwxrwxr-x 1 na389 na389  13878 Sep 14 00:57 shell
+-rwxrwxrwx 1 na389 na389 149083 Sep 14 16:45 checkpatch.pl
+-rw-rw-r-- 1 na389 na389   7293 Sep 15 01:33 1
+drwxrwxr-x 2 na389 na389   4096 Sep 15 20:51 na389
+drwxrwxr-x 2 na389 na389   4096 Sep 15 21:19 n389
+-rw-rw-r-- 1 na389 na389   9579 Sep 15 21:24 shell.c
+-rw-rw-r-- 1 na389 na389  13736 Sep 15 21:24 shell.o
+-rwxrwxr-x 1 na389 na389  18625 Sep 15 21:24 w4118_sh
+-rw-rw-r-- 1 na389 na389      0 Sep 15 21:24 na2542_shell_results.txt
+$df -lr
+df: invalid option -- 'r'
+Try 'df --help' for more information.
+$df -l
+Filesystem     1K-blocks      Used Available Use% Mounted on
+/dev/sda5      151058636  20422520 122939732  15% /
+none                   4         0         4   0% /sys/fs/cgroup
+udev             3935412         4   3935408   1% /dev
+tmpfs             789240      1304    787936   1% /run
+none                5120         0      5120   0% /run/lock
+none             3946188     64708   3881480   2% /run/shm
+none              102400        76    102324   1% /run/user
+/dev/sda2          98304     29235     69069  30% /boot/efi
+/dev/sda7      708945916 144065668 564880248  21% /media/na389/Data
+/dev/sda1         307196    244812     62384  80% /media/na389/Recovery
+/dev/sda4      103907324  35966836  67940488  35% /media/na389/AE2CF5712CF534C5
+$path    cat shell.c | grep exec | xyz
+error: command not found
+error: command not found
+$exit
+]0;na389@neha-ubuntu: ~/workspace/w4118_Assign1/hmwk1/shellna389@neha-ubuntu:~/workspace/w4118_Assign1/hmwk1/shell$ exit
+exit
+
+Script done on Mon 15 Sep 2014 09:38:02 PM EDT

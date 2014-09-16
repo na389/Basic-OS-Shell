@@ -105,10 +105,8 @@ char *handle_commands(char *cmd)
 		token = strtok(NULL, ":");
 	}
 
-	if (flag == TRUE) {
-		printf("handle_commands : %s\n", token_found);
+	if (flag == TRUE)
 		return token_found;
-	}
 	return NULL;
 
 }
@@ -178,21 +176,18 @@ void handle_path(int cmd_length, char *input[])
 }
 
 /*Fork the process to handle pipes*/
-int spawn_proc(int in, int out,  char *cmd[], int len)
+int fork_proc_exec(int in, int out,  char *cmd[], int len)
 {
 	pid_t pid = fork();
-	printf("spawn_proc: %s\n", cmd[0]);
+
 	if (pid > 0) {
 		int status, wait_failure;
 
 		wait_failure = wait(&status);
-		if (wait_failure == -1) {
+		if (wait_failure == -1)
 			return wait_failure;
-		}
-
-		if (WIFEXITED(status)) {
+		if (WIFEXITED(status))
 			return WEXITSTATUS(status);
-		}
 	} else if (pid == 0) {
 		if (in != 0) {
 			dup2(in, 0);
@@ -204,17 +199,13 @@ int spawn_proc(int in, int out,  char *cmd[], int len)
 		}
 		int return_val = 0;
 
-		printf("spawn_proc: %s\n", cmd[0]);
 		cmd[len] = NULL;
 		return_val = execv(cmd[0], cmd);
-		printf("spawn_proc return: %d\n", return_val);
 		if (return_val == -1) {
 			char *cmd_path = handle_commands(cmd[0]);
 
-			if (cmd_path == NULL) {
-				printf("error: command not found\n");
+			if (cmd_path == NULL)
 				exit(24);
-			}
 			cmd_path = concat(cmd_path, "/");
 			cmd_path = concat(cmd_path, cmd[0]);
 			cmd[len] = NULL;
@@ -227,7 +218,7 @@ int spawn_proc(int in, int out,  char *cmd[], int len)
 }
 
 /*Handle the pipes by changing the file descriptor to stdin and stdout*/
-void fork_pipes(int n, char *cmnds[])
+void pipe_exec(int n, char *cmnds[])
 {
 	int i, k, ret_spawn;
 	int in, fd[2];
@@ -242,7 +233,7 @@ void fork_pipes(int n, char *cmnds[])
 			data[k++] = token;
 			token = strtok(NULL, " \t");
 		}
-		ret_spawn = spawn_proc(in, fd[1], data, k);
+		ret_spawn = fork_proc_exec(in, fd[1], data, k);
 		if (ret_spawn == -1 || ret_spawn > 0)
 			break;
 		close(fd[1]);
@@ -276,10 +267,8 @@ void fork_pipes(int n, char *cmnds[])
 	} else if (pid == 0) {
 		int return_val = 0;
 
-		printf("fork pipes: %s\n", data[0]);
 		data[k] = NULL;
 		return_val = execv(data[0], data);
-		printf("fork_pipes return: %d\n", return_val);
 		if (return_val == -1) {
 			char *cmd_path = handle_commands(data[0]);
 
@@ -298,23 +287,23 @@ void fork_pipes(int n, char *cmnds[])
 
 }
 
-char *trimwhitespace(char *str)
+char *trim_string(char *str)
 {
 	char *end;
 
-	// Trim leading space
+	/* Trim leading space*/
 	while (isspace(*str))
 		str++;
 
-	if(*str == 0)  // All spaces?
+	if (*str == 0)  /* All spaces*/
 		return str;
 
-	// Trim trailing space
+	/* Trim trailing space*/
 	end = str + strlen(str) - 1;
 	while (end > str && isspace(*end))
 		end--;
 
-	// Write new null terminator
+	/*Write new null terminator*/
 	*(end+1) = 0;
 
 	return str;
@@ -323,7 +312,8 @@ char *trimwhitespace(char *str)
 /*Check is string is valid for using pipe*/
 int validate_string(char *str)
 {
-	char *res = trimwhitespace(str);
+	char *res = trim_string(str);
+
 	if (res == NULL || strcmp(res, "") == 0)
 		return FALSE;
 
@@ -337,18 +327,22 @@ int validate_string(char *str)
 	strcpy(test_input, res);
 	free(str);
 
-	int pipe_pos = FALSE, i = 0, len = strlen(test_input);
+	int pipe_pos = 0, i = 0, len = strlen(test_input);
 
 	if (test_input[0] == '|' || test_input[strlen(test_input) - 1] == '|')
-		return FALSE;
+		return 1;
 
-	while (i < len - 1) {
-		if (pipe_pos == FALSE && test_input[i++] == '|')
-			pipe_pos = TRUE;
-		else if (pipe_pos == TRUE && test_input[i++] != '|')
-			pipe_pos = FALSE;
-		else
-			i++;
+	while (i < len) {
+		if (pipe_pos == 0 && test_input[i] == '|')
+			pipe_pos = 1;
+		else if (pipe_pos == 1
+				&& test_input[i] != '|'
+				&& test_input[i] != ' '
+				&& test_input[i] != '\t')
+			pipe_pos = 0;
+		else if (pipe_pos == 1 && test_input[i] == '|')
+			break;
+		i = i + 1;
 	}
 
 	return pipe_pos;
@@ -393,7 +387,7 @@ void handle_pipes(char *input)
 		token = strtok(NULL, "|");
 	}
 	free(data1);
-	fork_pipes(length, cmds);
+	pipe_exec(length, cmds);
 }
 
 
@@ -414,19 +408,21 @@ int main(void)
 		if (str == NULL)
 			printf("error: %s\n", strerror(errno));
 		if (strstr(str, "|") != NULL) {
-			char *temp_malloc = (char *) malloc(strlen(str) + 1), *test_input;
+			char *temp_malloc = (char *) malloc(strlen(str) + 1),
+					*test_input;
 
 			if (temp_malloc == NULL) {
 				printf("error: %s\n", strerror(errno));
 				continue;
 			}
 			test_input = temp_malloc;
-			if (validate_string(test_input) == TRUE) {
+			strcpy(test_input, str);
+			if (validate_string(test_input) == 0) {
 				handle_pipes(str);
 				free(str);
 				str = NULL;
 			} else {
-				printf("error: invalid input\n");
+				printf("error: invalid command\n");
 			}
 			continue;
 		}
