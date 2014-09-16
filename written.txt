@@ -1,0 +1,130 @@
+========================================================================================================================================================================
+Chapter 1:
+========================================================================================================================================================================
+Ques 8: How would you design a system to run an entire operating system as an application on top of another operating system?
+Answer: An operating system running as an application on top of another operating system is called a virtual machine. In such scenario two operating systems are leveraging the hardware resources according to the applications running in them. The distinction is made as host and guest operating system. There can be two design approaches to this case:
+1. Since host operating system is running guest as an application, it will give illusion to the guest that it is handling the interation with the hardware but actually host is intercepting those calls. This way malicious calls which should not be passed to the underlying kernel are also guarded by the host operating system. There are some APIs exposed for every operating system which depending upon the nature of call can be used to interact with the operating system. So such calls, will make the operating system behave as a glue among various virtual machines running on it.
+
+2. Second approach could be introduce another layer above the hardware which acts like a monitor determining which operating system should be given control at a specific time. So host operating system is in illusion that it is controlling the underlying hardware but actually the monitor is doing the work by switching the hardware access between different operating systems running on the machine. Therefore, that monitor acts as illusionist here.
+
+Ques 13: For the computer you are currently using should the operating system design prioritize among reliability, security, portability, performance and adoption? Explain why?
+Answer: Computer currently used is employed for learning purposes which involves following generic operations to be performed:
+1. Installing and running heavy weight processes in the form of IDE, virtual machines and various editors.
+2. Running for long intervals of times. May be not even shut down for several days.
+3. Online surfing with several tabs open and simultaneously other processes like music player, text editor etc are also open.
+
+Keeping in mind above mentioned usages performance and reliability of the operating system play a major role.
+If the system is not reliable and is not doing what it is supposed to do or is not available during the required timeframe then the purpose of the operating system is defied. And with several tasks to be performed for the system in question it has to reliable so that tasks can be performed on time.
+Performance is the key in the given scenario as several heavy processes might be running at the same time. Therefore, operating system has to be efficient, responsive and should have high throughput.
+
+Then comes Adoption. If the operating systems support a high number of applications then it can be leveraged more appropriately.
+
+After performance and reliability, portability and security are features that need to be considered next. If the user needs to switch to a different machine with different hardware then a portable operating system will make the job easier and the same applications can then be used else the user would have to perform installations supported by the underlying hardware and work from ground up. 
+Also, if the system is secure it will not be affected by the mailicious attacks. Thus, even if user applications are affected reinstallations will do thw work but underlying configurations and processes will remain intact.
+
+
+
+
+========================================================================================================================================================================
+Chapter 3:
+========================================================================================================================================================================
+Ques 1: Can UNIX fork return an error? Why or why not?
+Answer: fork() command can return an error. When an error occurrs fork returns -1 to the parent and no child process is created. Also errno will be set depending upon the error.
+
+Following steps are performed when fork is called:
+1. Create and initialize the the process control block in the kernel.
+2. Create a new address space.
+3. Initialize the address space with a copy of the entire contents of the address space of the parent.
+4. Inherit the execution context of the parent.
+5. Inform the scheduler that the new process is ready to run.
+
+During the above process follwing might be the reasons for errors:
+1. Sufficient memory is not available to copy parents' page tables and allocate a task structure for the child.
+2. Resource limit for the caller has exceeded.
+3. Necessary kernel structures cannot be allocated because there is not enough memory.
+4. It might be the case that the fork() system call is not supported by the system.
+
+Ques 2: Can UNIX exec return an error? Why or why not?
+Answer: exec(...) shell command can return an error and sets the error code is set depending upon the nature of the error that took place. It returns -1 when an error occurs. 
+There can be various reasons of throwing an error. Some of them have been listed as follows:
+1. The command which is to be executed could not find the executable at the specified path.
+2. Executable path is not provided.
+3. Command could not be executed for some reason like unavailable resources, invalid arguments or a reason which made it to exit abruptly.
+
+Ques 3: What happens if we run the following program on UNIX?
+main(){
+	while(fork() >= 0);
+}
+Answer: Given program is a fork bomb which executes infinitally forking the running process when it re-enters the loop to check the condition of the loop.
+And each process starting from the children of the main process will have an infite loop in itself executing and thus creating further children and execute the loop infinitally. The program will stop executing when there will not be enough memory to fork the processes or mamximum number of running processes allowed in a system have been reached. As a result of this program, underlying can crash due to lack of resources like memory to keep it running.
+
+Ques 4: Explain what happens for UNIX wait to return (successfully and) immediately.
+Answer:  The wait() system call suspends execution of the calling process until one of its children terminates.
+It call has different definitions:
+-> pid_t wait(int *status)
+-> pid_t wait(pid_t pid, int *status, int options)
+-> int waitid(idtype_t idtype, id_t id, siginfo_t *infop, int options);                    
+
+Returning wait immediately and successfully can be determined in UNIX by following ways:
+1. Returns successfully if the child returns normally which can happen if child has executed successfully or terminated due to an error.
+2. Returns when the child process has been terminated by a signal.
+
+
+Ques 7: What happens if you "exec ls" in UNIX shell? Why?
+Answer: exec command replaces the  shell program with the program required to execute ls. If this command is executed in following contexts:
+1. In a UNIX terminal: The exec will replace shell program with the ls program. Executes the ls command and terminates the shell as there is no parent process waiting for the child process to finish.
+2. In a program which forks, waits for the child process and then use exec to execute ls: Then after executing ls, since the parent process is waiting for the child process to finish, exec will return successfully to program or if doesn't execute successfully then -1 will be returned. 
+
+Ques 8:
+Answer: Number of processes created: 32
+Explanation:
+After the first call the forkthem(5) will be called forking the current process and as a result there will be two processes in the environment. 
+Then, the forkthem() call comes again but n will be 4 this time. Since this satisfies the condition each of the 4 processes as a result of the last fork will each then call forthem with n = 3 and likewise till n becomes 0, 32 processes will be created
+
+Ques 9: 
+Answer:
+1. Three different of x will be there. 
+2. values will be as follows:
+x = 10
+x = 15
+x = 20
+==============================================================================================
+				parent				child
+Step1:				x = 5				x = 5+5 = 10
+Step2:		parent				child
+Step3:		x = 5+10			x = 5+10
+		  = 15				  = 15
+		x = 15+5
+		  = 20					
+==============================================================================================
+	
+Ques 10:
+Answer: 
+Program 1:				Program2:
+6					6
+6
+
+Program 1:
+-----------
+	     parent(pid > 0)		     child(pid = 0)
+Step 1:		val = 5				val = 5
+Step 2:		val = 6				val = 6
+
+
+Program 1:
+-----------
+	     parent(pid > 0)		     child(pid = 0)
+Step 1:		val = 5				val = 5
+Step 2:		val = 6				exit
+
+
+
+
+
+
+
+
+
+
+
+
