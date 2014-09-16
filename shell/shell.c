@@ -61,7 +61,7 @@ char *get_input(void)
 	str = temp_malloc;
 
 	fgets(str, mem, stdin);
-
+	/*Reallocate memory until newline is encountered*/
 	while (str[strlen(str) - 1] != '\n') {
 		mem *= 2;
 		temp_realloc = realloc(str, mem);
@@ -138,7 +138,8 @@ int scan_directory(char *dir, char *target)
 }
 
 
-/* Handling path command*/
+/* Handling path command
+ * If inappropriate input is found print relevant error message*/
 void handle_path(int cmd_length, char *input[])
 {
 	char *path_token = "";
@@ -240,6 +241,7 @@ void pipe_exec(int n, char *cmnds[])
 		in = fd[0];
 	}
 	if (ret_spawn == -1 || ret_spawn > 0) {
+		/*Restoring standard output to write the error*/
 		dup2(stdout_copy, STDOUT_FILENO);
 		printf("error: command not found\n");
 		return;
@@ -397,7 +399,7 @@ int main(void)
 	char *str, *token, *cmd[100], *cmd_path = "";
 	pid_t pid;
 	int i = 0;
-
+	/*Save stdin and stdout to restore after piping is handled*/
 	stdin_copy = dup(STDIN_FILENO);
 	stdout_copy = dup(STDOUT_FILENO);
 	while (1) {
@@ -445,6 +447,7 @@ int main(void)
 		} else if (i >= 1 && strcmp(cmd[0], "path") == 0) {
 			handle_path(i, cmd);
 		} else {
+			/*Handle the commands*/
 			int return_val = 0;
 
 			pid = fork();
