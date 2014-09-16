@@ -405,8 +405,10 @@ int main(void)
 		printf("$");
 		dup2(stdin_copy, STDIN_FILENO);
 		str = (char *) get_input();
-		if (str == NULL)
+		if (str == NULL) {
 			printf("error: %s\n", strerror(errno));
+			exit(1);
+		}
 		if (strstr(str, "|") != NULL) {
 			char *temp_malloc = (char *) malloc(strlen(str) + 1),
 					*test_input;
