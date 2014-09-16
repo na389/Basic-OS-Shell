@@ -49,6 +49,13 @@ It also handles error if one of the pipe commands fails it prints error and retu
 
 **main - It directs work to different functions depending upon the input. Also, it handles functionality for cd and exit.
 
+=========================================================================
+CODE FLOW
+=========================================================================
+1. Main program takes the input and delegates it to proper function depending upon the condition.
+2. Handling of commands like cd ,exit and shell commands is done in the main function itself.
+3. path command and pipe command are handled in separate function after validating the input.
+4. Fatal cases like execution failure of children are handled by terminating the child and printing error messages.
 
 =========================================================================
 TESTING

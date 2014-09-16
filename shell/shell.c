@@ -180,6 +180,7 @@ void handle_path(int cmd_length, char *input[])
 int fork_proc_exec(int in, int out,  char *cmd[], int len)
 {
 	pid_t pid = fork();
+	int ret_err = 0;
 
 	if (pid > 0) {
 		int status, wait_failure;
@@ -191,12 +192,29 @@ int fork_proc_exec(int in, int out,  char *cmd[], int len)
 			return WEXITSTATUS(status);
 	} else if (pid == 0) {
 		if (in != 0) {
+			//ret_err = dup2(in, 0);
 			dup2(in, 0);
-			close(in);
+			if (ret_err == -1) {
+				printf("error: %s\n", strerror(errno));
+				exit(24);
+			}
+			ret_err = close(in);
+			if (ret_err == -1) {
+				printf("error: %s\n", strerror(errno));
+				exit(24);
+			}
 		}
 		if (out != 1) {
-			dup2(out, 1);
-			close(out);
+			ret_err = dup2(out, 1);
+			if (ret_err == -1) {
+				printf("error: %s\n", strerror(errno));
+				exit(24);
+			}
+			ret_err = close(out);
+			if (ret_err == -1){
+				printf("error: %s\n", strerror(errno));
+				exit(24);
+			}
 		}
 		int return_val = 0;
 
@@ -228,21 +246,25 @@ void pipe_exec(int n, char *cmnds[])
 	in = 0;
 	for (i = 0; i < n-1; i++) {
 		k = 0;
-		pipe(fd);
+		ret_spawn = pipe(fd);
 		token = strtok(cmnds[i], " \t");
 		while (token != NULL) {
 			data[k++] = token;
 			token = strtok(NULL, " \t");
 		}
 		ret_spawn = fork_proc_exec(in, fd[1], data, k);
+		ret_spawn = close(fd[1]);
 		if (ret_spawn == -1 || ret_spawn > 0)
 			break;
-		close(fd[1]);
 		in = fd[0];
 	}
 	if (ret_spawn == -1 || ret_spawn > 0) {
 		/*Restoring standard output to write the error*/
-		dup2(stdout_copy, STDOUT_FILENO);
+		int ret = dup2(stdout_copy, STDOUT_FILENO);
+		if (ret == -1) {
+			printf("error: %s\n", strerror(errno));
+			return;
+		}
 		printf("error: command not found\n");
 		return;
 	}
@@ -253,8 +275,14 @@ void pipe_exec(int n, char *cmnds[])
 		token = strtok(NULL, " \t");
 	}
 	data[k] = NULL;
-	if (in != 0)
-		dup2(in, 0);
+	if (in != 0) {
+		int ret = dup2(in, 0);
+		if (ret == -1) {
+			printf("error: %s\n", strerror(errno));
+			return;
+		}
+	}
+
 
 	pid_t pid = fork();
 
@@ -323,7 +351,7 @@ int validate_string(char *str)
 
 	if (temp_malloc == NULL) {
 		printf("error: %s\n", strerror(errno));
-		return FALSE;
+		return 0;
 	}
 	test_input = temp_malloc;
 	strcpy(test_input, res);
@@ -402,6 +430,10 @@ int main(void)
 	/*Save stdin and stdout to restore after piping is handled*/
 	stdin_copy = dup(STDIN_FILENO);
 	stdout_copy = dup(STDOUT_FILENO);
+	if (stdin_copy == -1 || stdout_copy == -1) {
+		printf("error: %s\n", strerror(errno));
+		exit(1);
+	}
 	while (1) {
 		i = 0;
 		printf("$");
@@ -458,8 +490,6 @@ int main(void)
 				int child_status;
 
 				wait(&child_status);
-				if (WIFEXITED(child_status))
-					continue;
 			}
 			if (pid == 0)
 				return_val = execv(cmd[0], cmd);
